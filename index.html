@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Number Guessing Game</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .game-container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            text-align: center;
+            max-width: 500px;
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .game-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .step {
+            display: none;
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        .step.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .question {
+            font-size: 1.3em;
+            color: #444;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+        
+        .buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        
+        button {
+            padding: 15px 30px;
+            font-size: 1.1em;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            min-width: 100px;
+        }
+        
+        .btn-yes {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+        }
+        
+        .btn-no {
+            background: linear-gradient(45deg, #f44336, #d32f2f);
+            color: white;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(45deg, #2196F3, #1976D2);
+            color: white;
+        }
+        
+        .btn-restart {
+            background: linear-gradient(45deg, #FF9800, #F57C00);
+            color: white;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        input[type="number"] {
+            padding: 15px;
+            font-size: 1.2em;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            width: 150px;
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 10px rgba(102, 126, 234, 0.3);
+        }
+        
+        .result {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+            font-size: 1.3em;
+            font-weight: bold;
+        }
+        
+        .step-indicator {
+            margin-bottom: 20px;
+            font-size: 0.9em;
+            color: #666;
+        }
+        
+        .progress-bar {
+            height: 4px;
+            background: #eee;
+            border-radius: 2px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transition: width 0.3s ease;
+        }
+        
+        .magic-number {
+            font-size: 2em;
+            color: #667eea;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>🔮 Number Guessing Game</h1>
+        
+        <div class="step-indicator">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressBar"></div>
+            </div>
+            <span id="stepCounter">Step 1 of 8</span>
+        </div>
+        
+        <!-- Step 1: Initial guess -->
+        <div class="step active" id="step1">
+            <div class="question">Think of a number between 1 and 100. Got it in your mind?</div>
+            <div class="buttons">
+                <button class="btn-yes" onclick="nextStep(2)">Yes, I have a number!</button>
+            </div>
+        </div>
+        
+        <!-- Step 2: Confirm guess -->
+        <div class="step" id="step2">
+            <div class="question">Did you guess a number?</div>
+            <div class="buttons">
+                <button class="btn-yes" onclick="nextStep(3)">Yes</button>
+                <button class="btn-no" onclick="nextStep(1)">No, let me think again</button>
+            </div>
+        </div>
+        
+        <!-- Step 3: Double it -->
+        <div class="step" id="step3">
+            <div class="question">Now double your number (multiply by 2). Have you doubled it?</div>
+            <div class="buttons">
+                <button class="btn-yes" onclick="nextStep(4)">Yes</button>
+                <button class="btn-no" onclick="nextStep(3)">No, let me calculate</button>
+            </div>
+        </div>
+        
+        <!-- Step 4: Add 5 -->
+        <div class="step" id="step4">
+            <div class="question">Add 5 to your current number. Have you added 5?</div>
+            <div class="buttons">
+                <button class="btn-yes" onclick="nextStep(5)">Yes</button>
+                <button class="btn-no" onclick="nextStep(4)">No, let me calculate</button>
+            </div>
+        </div>
+        
+        <!-- Step 5: Multiply by 50 -->
+        <div class="step" id="step5">
+            <div class="question">Multiply your number by 50. Have you multiplied it?</div>
+            <div class="buttons">
+                <button class="btn-yes" onclick="nextStep(6)">Yes</button>
+                <button class="btn-no" onclick="nextStep(5)">No, let me calculate</button>
+            </div>
+        </div>
+        
+        <!-- Step 6: Add 0 -->
+        <div class="step" id="step6">
+            <div class="question">Add 0 to your number. Have you added 0?</div>
+            <div class="buttons">
+                <button class="btn-yes" onclick="nextStep(7)">Yes</button>
+                <button class="btn-no" onclick="nextStep(6)">No, let me do it</button>
+            </div>
+        </div>
+        
+        <!-- Step 7: Enter final number -->
+        <div class="step" id="step7">
+            <div class="question">Enter your final number:</div>
+            <div>
+                <input type="number" id="finalNumber" placeholder="Enter number">
+            </div>
+            <div class="buttons">
+                <button class="btn-primary" onclick="revealGuess()">Reveal My Number!</button>
+            </div>
+        </div>
+        
+        <!-- Step 8: Result -->
+        <div class="step" id="step8">
+            <div class="question">🎉 Your original number was:</div>
+            <div class="magic-number" id="guessedNumber"></div>
+            <div class="result" id="resultMessage"></div>
+            <div class="buttons">
+                <button class="btn-restart" onclick="restart()">Play Again</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentStep = 1;
+        const totalSteps = 8;
+        
+        function nextStep(stepNumber) {
+            // Hide current step
+            document.getElementById(`step${currentStep}`).classList.remove('active');
+            
+            // Show next step
+            currentStep = stepNumber;
+            document.getElementById(`step${currentStep}`).classList.add('active');
+            
+            // Update progress
+            updateProgress();
+        }
+        
+        function updateProgress() {
+            const progress = (currentStep / totalSteps) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+            document.getElementById('stepCounter').textContent = `Step ${currentStep} of ${totalSteps}`;
+        }
+        
+        function revealGuess() {
+            const finalNumber = parseInt(document.getElementById('finalNumber').value);
+            
+            if (isNaN(finalNumber)) {
+                alert('Please enter a valid number!');
+                return;
+            }
+            
+            // Subtract 250 from the final number
+            const result = finalNumber - 250;
+            
+            // Convert to string to work with digits
+            const resultStr = result.toString();
+            
+            let guessedNumber;
+            
+            // Extract digits based on number of digits
+            if (resultStr.length === 3) {
+                guessedNumber = resultStr.charAt(0);
+            } else if (resultStr.length === 4) {
+                guessedNumber = resultStr.substring(0, 2);
+            } else if (resultStr.length === 5) {
+                guessedNumber = resultStr.substring(0, 3);
+            } else if (resultStr.length === 6) {
+                guessedNumber = resultStr.substring(0, 4);
+            } else {
+                // For other lengths, take appropriate number of digits
+                const digitsToTake = Math.max(1, resultStr.length - 2);
+                guessedNumber = resultStr.substring(0, digitsToTake);
+            }
+            
+            // Display result
+            document.getElementById('guessedNumber').textContent = guessedNumber;
+            document.getElementById('resultMessage').textContent = `Amazing! I correctly guessed your number through mathematical magic!`;
+            
+            nextStep(8);
+        }
+        
+        function restart() {
+            currentStep = 1;
+            document.getElementById('finalNumber').value = '';
+            
+            // Hide all steps
+            for (let i = 1; i <= totalSteps; i++) {
+                document.getElementById(`step${i}`).classList.remove('active');
+            }
+            
+            // Show first step
+            document.getElementById('step1').classList.add('active');
+            
+            // Reset progress
+            updateProgress();
+        }
+        
+        // Initialize progress bar
+        updateProgress();
+        
+        // Allow Enter key to submit final number
+        document.getElementById('finalNumber').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                revealGuess();
+            }
+        });
+    </script>
+</body>
+</html>
